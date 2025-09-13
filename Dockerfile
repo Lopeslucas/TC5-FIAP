@@ -1,13 +1,18 @@
+# Base image
 FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
+# Set working directory
 WORKDIR /app
 
-COPY requirements.txt /app/
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app/
+# Copy project files
+COPY . .
 
-CMD ["gunicorn", "tc5_fiap.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# Expose port
+EXPOSE 8000
+
+# Run gunicorn
+CMD ["gunicorn", "tc5_fiap.wsgi:application", "--bind", "0.0.0.0:8000"]
