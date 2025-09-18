@@ -41,7 +41,7 @@ staticfiles/
 *.log
 docker-compose.override.yml
 
-# PostgreSQL (se tiver dumps locais)
+# PostgreSQ
 *.sql
 *.dump
 
