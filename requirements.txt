@@ -1,5 +1,9 @@
-Django>=4.2
-djangorestframework
-gunicorn
-psycopg2-binary
-python-dotenv
+Django>=5.2
+djangorestframework>=3.16
+psycopg2>=2.9
+django-filter>=23.0
+django-cors-headers>=4.0.0
+python-decouple>=3.8
+gunicorn>=21.0.0
+whitenoise>=6.0.0
+django-environ>=0.12.0

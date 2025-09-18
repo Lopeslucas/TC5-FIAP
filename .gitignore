@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.log
+
+# Virtualenv
+.env/
+venv/
+ENV/
+env.bak/
+
+# Django
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+# Configurações locais
+*.local
+*.secret
+*.backup
+
+# Arquivos de ambiente
+.env
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+*.pid
+*.seed
+*.out
+*.log
+docker-compose.override.yml
+
+# PostgreSQL (se tiver dumps locais)
+*.sql
+*.dump
+
+# Sistema
+.DS_Store
+Thumbs.db
