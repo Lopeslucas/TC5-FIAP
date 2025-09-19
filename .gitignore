@@ -41,10 +41,17 @@ staticfiles/
 *.log
 docker-compose.override.yml
 
-# PostgreSQ
+# PostgreSQL
 *.sql
 *.dump
 
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Pentaho
+*.ktr
+
+# JS
+*.js
+
