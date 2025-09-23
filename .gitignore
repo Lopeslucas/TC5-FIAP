@@ -61,4 +61,8 @@ Thumbs.db
 # CSV
 *.csv
 
+# MLFLOW
+mlruns/
+
+# Coisas
 notas/
