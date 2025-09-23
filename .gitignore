@@ -58,3 +58,6 @@ Thumbs.db
 # JSON
 *.json
 
+# CSV
+*.csv
+
