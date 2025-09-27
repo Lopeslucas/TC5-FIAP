@@ -19,9 +19,7 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 
 
-
 # S3 Loader
-
 class S3DataLoader:
     def __init__(self, bucket_name):
         self.bucket_name = bucket_name
@@ -41,9 +39,7 @@ class S3DataLoader:
         print(f"Upload concluído: s3://{self.bucket_name}/{s3_path}")
 
 
-
 # Embeddings
-
 class EmbeddingProcessor:
     def __init__(self, s3_loader: S3DataLoader, model_name="all-MiniLM-L6-v2"):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -67,9 +63,7 @@ class EmbeddingProcessor:
         return self.model.encode(text, convert_to_tensor=True)
 
 
-
 # Similaridade
-
 class SimilarityCalculator:
     def __init__(self):
         self.tfidf_vectorizer = TfidfVectorizer(stop_words="english")
@@ -116,9 +110,7 @@ class SimilarityCalculator:
         return pairs_df
 
 
-
 # Label Generator
-
 class LabelGenerator:
     @staticmethod
     def create_top_percentile_labels(pairs_df, percentile=0.9):
@@ -129,9 +121,7 @@ class LabelGenerator:
         return labels
 
 
-
 # Modelo
-
 class MatchNet(nn.Module):
     def __init__(self, input_dim, hidden_dims=[16, 8]):
         super().__init__()
@@ -147,9 +137,7 @@ class MatchNet(nn.Module):
         return self.net(x)
 
 
-
 # Treinador
-
 class ModelTrainer:
     def __init__(self, model, pos_weight=None, lr=0.001):
         if pos_weight is None:
@@ -213,9 +201,7 @@ class ModelTrainer:
         return acc, report, y_probs, y_pred
 
 
-
 # Pipeline
-
 class JobMatchingPipeline:
     def __init__(self, bucket_name, prefix="silver/"):
         self.s3_loader = S3DataLoader(bucket_name)
