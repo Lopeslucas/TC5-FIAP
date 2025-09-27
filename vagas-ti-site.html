@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vagas de TI - Portal de Empregos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .vagas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .vaga-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vaga-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .vaga-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .vaga-titulo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .vaga-empresa {
+            color: #667eea;
+            font-weight: 500;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .vaga-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-tag {
+            background: #f7fafc;
+            color: #4a5568;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .vaga-descricao {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .requisitos {
+            margin-bottom: 20px;
+        }
+
+        .requisitos h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .requisitos-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .requisito-tag {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            border: 1px solid #b2f5ea;
+        }
+
+        .buscar-cvs-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .buscar-cvs-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .buscar-cvs-btn:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .resultado-cvs {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .resultado-cvs h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .cv-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .vagas-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .vaga-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Portal de Vagas de TI</h1>
+            <p>Encontre as melhores oportunidades em tecnologia</p>
+        </div>
+
+        <div class="vagas-grid" id="vagasGrid">
+            <!-- As vagas serão inseridas aqui pelo JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Dados de exemplo das vagas
+        const vagas = [
+            {
+                id: 1,
+                titulo: "Desenvolvedor Full Stack",
+                empresa: "TechCorp Solutions",
+                localizacao: "São Paulo, SP",
+                tipo: "CLT",
+                nivel: "Pleno",
+                salario: "R$ 8.000 - R$ 12.000",
+                descricao: "Buscamos um desenvolvedor experiente para trabalhar com React, Node.js e bancos de dados relacionais. Você irá desenvolver aplicações web escaláveis e participar de todo o ciclo de desenvolvimento.",
+                requisitos: ["JavaScript", "React", "Node.js", "PostgreSQL", "Git", "Docker"]
+            },
+            {
+                id: 2,
+                titulo: "Analista de Dados",
+                empresa: "DataTech Analytics",
+                localizacao: "Rio de Janeiro, RJ",
+                tipo: "PJ",
+                nivel: "Sênior",
+                salario: "R$ 10.000 - R$ 15.000",
+                descricao: "Procuramos um analista de dados para extrair insights valiosos e criar dashboards interativos. Trabalhará diretamente com stakeholders para entender necessidades de negócio.",
+                requisitos: ["Python", "SQL", "Power BI", "Pandas", "Machine Learning", "Estatística"]
+            },
+            {
+                id: 3,
+                titulo: "DevOps Engineer",
+                empresa: "CloudFirst Technology",
+                localizacao: "Remoto",
+                tipo: "CLT",
+                nivel: "Sênior",
+                salario: "R$ 12.000 - R$ 18.000",
+                descricao: "Responsável por implementar e manter infraestrutura em nuvem, pipelines CI/CD e monitoramento de aplicações. Experiência com AWS é essencial.",
+                requisitos: ["AWS", "Docker", "Kubernetes", "Terraform", "Jenkins", "Linux", "Python"]
+            },
+            {
+                id: 4,
+                titulo: "Desenvolvedor Mobile",
+                empresa: "AppMasters",
+                localizacao: "Belo Horizonte, MG",
+                tipo: "CLT",
+                nivel: "Pleno",
+                salario: "R$ 7.000 - R$ 11.000",
+                descricao: "Desenvolvimento de aplicativos móveis nativos e híbridos para iOS e Android. Trabalhar em projetos inovadores com foco na experiência do usuário.",
+                requisitos: ["React Native", "Flutter", "iOS", "Android", "Firebase", "API REST"]
+            },
+            {
+                id: 5,
+                titulo: "Engenheiro de Software",
+                empresa: "Innovation Labs",
+                localizacao: "Porto Alegre, RS",
+                tipo: "CLT",
+                nivel: "Sênior",
+                salario: "R$ 11.000 - R$ 16.000",
+                descricao: "Liderar o desenvolvimento de sistemas complexos e mentorear desenvolvedores juniores. Foco em arquitetura de software e boas práticas de desenvolvimento.",
+                requisitos: ["Java", "Spring Boot", "Microservices", "Kafka", "Redis", "MongoDB", "Arquitetura"]
+            },
+            {
+                id: 6,
+                titulo: "Product Manager Tech",
+                empresa: "StartupNext",
+                localizacao: "São Paulo, SP",
+                tipo: "CLT",
+                nivel: "Pleno",
+                salario: "R$ 9.000 - R$ 14.000",
+                descricao: "Gerenciar produtos digitais desde a concepção até o lançamento. Trabalhar próximo aos times de desenvolvimento e design para entregar soluções inovadoras.",
+                requisitos: ["Scrum", "Jira", "Analytics", "UX/UI", "SQL", "Product Strategy"]
+            }
+        ];
+
+        // Função para criar o HTML de uma vaga
+        function criarVagaCard(vaga) {
+            return `
+                <div class="vaga-card">
+                    <h3 class="vaga-titulo">${vaga.titulo}</h3>
+                    <div class="vaga-empresa">${vaga.empresa}</div>
+                    
+                    <div class="vaga-info">
+                        <span class="info-tag">📍 ${vaga.localizacao}</span>
+                        <span class="info-tag">💼 ${vaga.tipo}</span>
+                        <span class="info-tag">⭐ ${vaga.nivel}</span>
+                        <span class="info-tag">💰 ${vaga.salario}</span>
+                    </div>
+                    
+                    <p class="vaga-descricao">${vaga.descricao}</p>
+                    
+                    <div class="requisitos">
+                        <h4>Requisitos Técnicos:</h4>
+                        <div class="requisitos-list">
+                            ${vaga.requisitos.map(req => `<span class="requisito-tag">${req}</span>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <button class="buscar-cvs-btn" onclick="buscarCVsCompativeis(${vaga.id})">
+                        Buscar CVs Compatíveis
+                    </button>
+                    
+                    <div id="resultado-${vaga.id}" class="resultado-cvs" style="display: none;"></div>
+                </div>
+            `;
+        }
+
+        // Função para buscar CVs compatíveis (simulação)
+        function buscarCVsCompativeis(vagaId) {
+            const btn = event.target;
+            const resultadoDiv = document.getElementById(`resultado-${vagaId}`);
+            
+            // Simular loading
+            btn.textContent = 'Buscando...';
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            // Simular delay de API
+            setTimeout(() => {
+                // CVs simulados
+                const cvsSimulados = [
+                    "João Silva - 5 anos exp. em React/Node.js - Match: 95%",
+                    "Maria Santos - Full Stack Developer - Match: 88%",
+                    "Pedro Costa - Especialista em JavaScript - Match: 82%",
+                    "Ana Oliveira - Desenvolvedora Sênior - Match: 78%",
+                    "Carlos Lima - Engenheiro de Software - Match: 75%"
+                ];
+                
+                resultadoDiv.innerHTML = `
+                    <h4>✅ 5 CVs Encontrados:</h4>
+                    ${cvsSimulados.map(cv => `<div class="cv-item">${cv}</div>`).join('')}
+                `;
+                
+                resultadoDiv.style.display = 'block';
+                btn.textContent = 'CVs Encontrados!';
+                btn.classList.remove('loading');
+                
+                // Aqui você integraria com sua API real
+                console.log(`Buscar CVs para vaga ID: ${vagaId}`);
+                
+            }, 2000);
+        }
+
+        // Renderizar as vagas na página
+        function renderizarVagas() {
+            const vagasGrid = document.getElementById('vagasGrid');
+            vagasGrid.innerHTML = vagas.map(vaga => criarVagaCard(vaga)).join('');
+        }
+
+        // Inicializar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            renderizarVagas();
+        });
+    </script>
+</body>
+</html>
