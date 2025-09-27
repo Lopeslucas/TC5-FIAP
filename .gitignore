@@ -42,6 +42,7 @@ staticfiles/
 docker-compose.override.yml
 
 # PostgreSQL
+/bd
 *.sql
 *.dump
 
@@ -50,15 +51,18 @@ docker-compose.override.yml
 Thumbs.db
 
 # Pentaho
+/pentaho
 *.ktr
 
 # JS
 *.js
 
 # JSON
+/json
 *.json
 
 # CSV
+/csv
 *.csv
 
 # MLFLOW

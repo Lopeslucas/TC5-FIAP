@@ -1,20 +1,23 @@
 from django.db import models
 
-class Applicant(models.Model):
-    id = models.AutoField(primary_key=True)
-    nome = models.CharField(max_length=150)
-    email = models.CharField(max_length=255, blank=True, null=True)
-    telefone = models.CharField(max_length=30, blank=True, null=True)
+class Curriculo(models.Model):
+    cv_pt = models.TextField()
+    cv_sugerido = models.TextField(blank=True, null=True)
 
     class Meta:
-        db_table = "applicants"
-        managed = False
+        db_table = 'curriculos'  # <- tabela existente no banco
+
+    def __str__(self):
+        return f"Curriculo {self.id}"
+
 
 class Vaga(models.Model):
-    id = models.AutoField(primary_key=True)
-    titulo = models.CharField(max_length=255)
-    descricao = models.TextField(blank=True, null=True)
+    titulo_vaga = models.CharField(max_length=255)
+    areas_atuacao = models.TextField()
+    principais_atividades = models.TextField()
 
     class Meta:
-        db_table = "vagas"
-        managed = False
+        db_table = 'vagas'  # <- tabela existente no banco
+
+    def __str__(self):
+        return self.titulo_vaga

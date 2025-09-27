@@ -1,6 +1,7 @@
 import json
 import psycopg2
 import boto3
+import os
 
 # Nome do bucket e "prefixo"
 bucket_name = "bucket-tc5"
@@ -12,7 +13,12 @@ caminho_arquivo_vagas = prefix + "vagas.json"
 caminho_arquivo_prospects = prefix + "prospects.json"
 
 # Criar cliente S3
-s3 = boto3.client("s3")
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.getenv("AWS_DEFAULT_REGION")
+)
 
 def carregar_json_do_s3(bucket, key):
     """Baixa e carrega JSON direto do S3"""

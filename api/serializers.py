@@ -1,9 +1,11 @@
-from rest_framework import serializers
-from .models import Applicant, Vaga
+# serializers.py
 
-class ApplicantSerializer(serializers.ModelSerializer):
+from rest_framework import serializers
+from .models import Curriculo, Vaga
+
+class CurriculoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Applicant
+        model = Curriculo
         fields = "__all__"
 
 class VagaSerializer(serializers.ModelSerializer):
