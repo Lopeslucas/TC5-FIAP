@@ -214,14 +214,17 @@ class ModelTrainer:
 
 # Pipeline
 class JobMatchingPipeline:
-    def __init__(self, bucket_name, prefix, model_name):
+    def __init__(self, bucket_name, prefix="silver/", model_name="all-MiniLM-L6-v2"):
         self.s3_loader = S3DataLoader(bucket_name)
         self.embedding_processor = EmbeddingProcessor(self.s3_loader, model_name)
         self.similarity_calc = SimilarityCalculator()
         self.label_generator = LabelGenerator()
         self.prefix = prefix
 
-    def load_data(self, cv_key, vagas_key, prefix):
+    def load_data(self, cv_key="cv_filtred.csv", vagas_key="vagas_filtred.csv", prefix=None):
+        if prefix is None:
+            prefix = self.prefix
+        
         df_cvs = self.s3_loader.load_csv(prefix + cv_key)
         df_vagas = self.s3_loader.load_csv(prefix + vagas_key)
         df_cvs = df_cvs[["id", "cv_sugerido"]].rename(columns={"id": "cv_id"})
