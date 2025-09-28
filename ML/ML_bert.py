@@ -4,6 +4,7 @@ import os
 import io
 import boto3
 import torch
+import json
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
@@ -11,7 +12,7 @@ from sentence_transformers import SentenceTransformer, util
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import GroupShuffleSplit
-from sklearn.metrics import accuracy_score, classification_report, precision_recall_curve, average_precision_score
+from sklearn.metrics import accuracy_score, classification_report, precision_recall_curve, average_precision_score, confusion_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from torch.utils.data import TensorDataset, DataLoader
 import torch.nn as nn
@@ -21,7 +22,6 @@ import matplotlib.pyplot as plt
 
 
 # S3 Loader
-
 class S3DataLoader:
     def __init__(self, bucket_name):
         self.bucket_name = bucket_name
@@ -43,12 +43,16 @@ class S3DataLoader:
 
 
 # Embeddings
-
 class EmbeddingProcessor:
     def __init__(self, s3_loader: S3DataLoader, model_name="all-MiniLM-L6-v2"):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model = SentenceTransformer(model_name, device=self.device)
+        self.model_name = model_name
+        self.model = None   # não carregue aqui
         self.s3_loader = s3_loader
+
+    def _ensure_model_loaded(self):
+        if self.model is None:
+            self.model = SentenceTransformer(self.model_name, device=self.device)
 
     def get_cv_embeddings(self, cv_texts, s3_path="gold/cv_embeddings.npy", dtype=np.float32):
         try:
@@ -56,7 +60,9 @@ class EmbeddingProcessor:
             array = np.load(io.BytesIO(obj["Body"].read()))
             return torch.tensor(array, device=self.device, dtype=torch.float32)
         except self.s3_loader.s3.exceptions.NoSuchKey:
-            embeddings = self.model.encode(cv_texts, convert_to_tensor=True).to(torch.float32 if dtype==np.float32 else torch.float32)
+            # carrega o modelo só aqui
+            self._ensure_model_loaded()
+            embeddings = self.model.encode(cv_texts, convert_to_tensor=True).to(torch.float32)
             buffer = io.BytesIO()
             np.save(buffer, embeddings.cpu().numpy().astype(dtype))
             buffer.seek(0)
@@ -64,12 +70,11 @@ class EmbeddingProcessor:
             return embeddings
 
     def encode_text(self, text):
+        self._ensure_model_loaded()
         return self.model.encode(text, convert_to_tensor=True)
 
 
-
 # Similaridade
-
 class SimilarityCalculator:
     def __init__(self):
         self.tfidf_vectorizer = TfidfVectorizer(stop_words="english")
@@ -118,7 +123,6 @@ class SimilarityCalculator:
 
 
 # Label Generator
-
 class LabelGenerator:
     @staticmethod
     def create_top_percentile_labels(pairs_df, percentile=0.9):
@@ -131,7 +135,6 @@ class LabelGenerator:
 
 
 # Modelo
-
 class MatchNet(nn.Module):
     def __init__(self, input_dim, hidden_dims=[16, 8]):
         super().__init__()
@@ -215,7 +218,6 @@ class ModelTrainer:
 
 
 # Pipeline
-
 class JobMatchingPipeline:
     def __init__(self, bucket_name, prefix="silver/"):
         self.s3_loader = S3DataLoader(bucket_name)
@@ -252,22 +254,56 @@ class JobMatchingPipeline:
         print(f"Pipeline concluída com {len(pairs_df)} pares")
         return pairs_df
 
-    def train_model(self, pairs_df, epochs=10):
+    def train_model(self, pairs_df, epochs=10, test_size=0.2, batch_size=64, lr=0.001):
         model = MatchNet(input_dim=2)
 
-        # calcular pos_weight para balancear loss
+        # balanceamento
         n_pos = pairs_df["label"].sum()
         n_neg = len(pairs_df) - n_pos
         pos_weight = torch.tensor([n_neg / n_pos], dtype=torch.float32)
 
-        trainer = ModelTrainer(model, pos_weight=pos_weight)
-        X_train, X_test, y_train, y_test = trainer.prepare_data(pairs_df)
-        train_loader, test_loader = trainer.create_data_loaders(X_train, X_test, y_train, y_test)
+        trainer = ModelTrainer(model, pos_weight=pos_weight, lr=lr)
+        X_train, X_test, y_train, y_test = trainer.prepare_data(pairs_df, test_size=test_size)
+        train_loader, test_loader = trainer.create_data_loaders(X_train, X_test, y_train, y_test, batch_size=batch_size)
         trainer.train(train_loader, epochs)
-        acc, report, y_probs, y_pred = trainer.evaluate(X_test, y_test)
-        print(f"Accuracy: {acc}")
-        print(report)
-        return model, trainer
+
+        # avaliação
+        model.eval()
+        with torch.no_grad():
+            logits = model(torch.tensor(X_test)).squeeze(1)
+            y_probs = torch.sigmoid(logits).numpy()
+            y_pred = (y_probs >= 0.5).astype(int)
+
+        # métricas básicas
+        acc = accuracy_score(y_test, y_pred)
+        avg_prec = average_precision_score(y_test, y_probs)
+        report_dict = classification_report(y_test, y_pred, output_dict=True)
+        cm = confusion_matrix(y_test, y_pred).tolist()  # matriz de confusão
+
+        # dicionário final
+        metrics = {
+            "n_samples": len(pairs_df),
+            "n_positive": int(n_pos),
+            "n_negative": int(n_neg),
+            "accuracy": acc,
+            "avg_precision_score": avg_prec,
+            "macro_avg_precision": report_dict["macro avg"]["precision"],
+            "macro_avg_recall": report_dict["macro avg"]["recall"],
+            "macro_avg_f1_score": report_dict["macro avg"]["f1-score"],
+            "weighted_avg_precision": report_dict["weighted avg"]["precision"],
+            "weighted_avg_recall": report_dict["weighted avg"]["recall"],
+            "weighted_avg_f1_score": report_dict["weighted avg"]["f1-score"],
+            "confusion_matrix": cm,
+            "classification_report": report_dict
+        }
+
+        # salvar no S3/gold
+        buffer = io.BytesIO()
+        buffer.write(json.dumps(metrics, indent=2).encode("utf-8"))
+        buffer.seek(0)
+        self.s3_loader.upload_bytes(buffer.read(), "gold/metrics.json")
+
+        return model, trainer, metrics
 
 
 if __name__ == "__main__":
