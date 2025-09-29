@@ -1,0 +1,13 @@
+apiVersion: 1
+
+datasources:
+  - name: Job_Base
+    type: postgres
+    access: proxy
+    url: db:5432
+    database: Job_Base
+    user: postgres
+    password: 123
+    isDefault: true
+    version: 1
+    editable: true
