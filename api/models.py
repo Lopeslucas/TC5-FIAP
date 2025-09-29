@@ -5,7 +5,7 @@ class Curriculo(models.Model):
     cv_sugerido = models.TextField(blank=True, null=True)
 
     class Meta:
-        db_table = 'curriculos'  # <- tabela existente no banco
+        db_table = 'curriculos'
 
     def __str__(self):
         return f"Curriculo {self.id}"
@@ -17,7 +17,7 @@ class Vaga(models.Model):
     principais_atividades = models.TextField()
 
     class Meta:
-        db_table = 'vagas'  # <- tabela existente no banco
+        db_table = 'vagas'
 
     def __str__(self):
         return self.titulo_vaga

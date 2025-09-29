@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vagas de TI - Portal de Empregos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .system-status {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .system-status.loading {
+            background: rgba(255,193,7,0.3);
+        }
+
+        .system-status.ready {
+            background: rgba(76,175,80,0.3);
+        }
+
+        .system-status.error {
+            background: rgba(244,67,54,0.3);
+        }
+
+        .vagas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .vaga-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vaga-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .vaga-card.active {
+            border: 3px solid #667eea;
+        }
+
+        .vaga-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .vaga-titulo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .vaga-info {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .vaga-descricao {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .buscar-cvs-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .buscar-cvs-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .buscar-cvs-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .resultado-container {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: -15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .resultado-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .resultado-header h3 {
+            color: #2d3748;
+            font-size: 1.4rem;
+        }
+
+        .fechar-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .fechar-btn:hover {
+            background: #cbd5e0;
+        }
+
+        .cv-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .cv-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .cv-id {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .cv-score {
+            background: #667eea;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .cv-texto {
+            color: #4a5568;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            color: white;
+            font-weight: 600;
+            padding: 10px 15px;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .error-message {
+            background: rgba(244,67,54,0.2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .vagas-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .vaga-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Portal de Vagas de TI</h1>
+            <p>Encontre as melhores oportunidades em tecnologia com IA</p>
+        </div>
+
+        <div id="systemStatus" class="system-status loading">
+            Verificando sistema...
+        </div>
+
+        <div id="vagasContainer">
+            <div id="vagasGrid" class="vagas-grid">
+                <div class="loading-spinner">Carregando vagas...</div>
+            </div>
+        </div>
+
+        <div id="pagination" class="pagination" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api';
+        
+        let currentPage = 1;
+        let totalPages = 1;
+        let systemReady = false;
+        let currentResultadoVagaId = null;
+
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/ml/health/`);
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('systemStatus');
+                
+                if (data.ready_for_prediction) {
+                    systemReady = true;
+                    statusDiv.className = 'system-status ready';
+                    statusDiv.textContent = '✓ Sistema pronto para predições';
+                } else {
+                    systemReady = false;
+                    statusDiv.className = 'system-status error';
+                    statusDiv.textContent = '⚠ Sistema não está pronto. Execute: /api/ml/load/';
+                }
+                
+                return systemReady;
+            } catch (error) {
+                console.error('Erro ao verificar status:', error);
+                const statusDiv = document.getElementById('systemStatus');
+                statusDiv.className = 'system-status error';
+                statusDiv.textContent = '✗ Erro ao conectar com o servidor';
+                return false;
+            }
+        }
+// Substitua a função carregarVagas por esta versão melhorada:
+
+async function carregarVagas(page = 1) {
+    const vagasGrid = document.getElementById('vagasGrid');
+    vagasGrid.innerHTML = '<div class="loading-spinner">Carregando vagas...</div>';
+    
+    fecharResultado();
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/vagas/?page=${page}`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error('Erro ao carregar vagas');
+        }
+
+        currentPage = page;
+        
+        // Calcular páginas dinamicamente baseado no page_size do backend
+        const pageSize = data.results ? data.results.length : 12;
+        totalPages = Math.ceil(data.count / pageSize);
+        
+        if (data.results && data.results.length > 0) {
+            vagasGrid.innerHTML = data.results.map(vaga => criarVagaCard(vaga)).join('');
+            atualizarPaginacao(data);
+        } else {
+            vagasGrid.innerHTML = '<div class="error-message">Nenhuma vaga encontrada</div>';
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar vagas:', error);
+        vagasGrid.innerHTML = `<div class="error-message">Erro ao carregar vagas: ${error.message}</div>`;
+    }
+}
+
+        function criarVagaCard(vaga) {
+            const descricao = vaga.principais_atividades 
+                ? vaga.principais_atividades.substring(0, 200) + '...'
+                : 'Sem descrição disponível';
+            
+            return `
+                <div class="vaga-card" id="card-${vaga.id}">
+                    <h3 class="vaga-titulo">${vaga.titulo_vaga || 'Título não disponível'}</h3>
+                    <div class="vaga-info">ID: ${vaga.id}</div>
+                    <p class="vaga-descricao">${descricao}</p>
+                    
+                    <button 
+                        class="buscar-cvs-btn" 
+                        onclick="buscarCVsCompativeis(${vaga.id}, '${vaga.titulo_vaga}')"
+                        id="btn-${vaga.id}"
+                        ${!systemReady ? 'disabled' : ''}>
+                        ${systemReady ? 'BUSCAR CVS COMPATÍVEIS' : 'Sistema não está pronto'}
+                    </button>
+                </div>
+            `;
+        }
+
+        async function buscarCVsCompativeis(vagaId, vagaTitulo) {
+            const btn = document.getElementById(`btn-${vagaId}`);
+            
+            if (!systemReady) {
+                alert('Sistema não está pronto. Execute /api/ml/load/ primeiro.');
+                return;
+            }
+            
+            // Se clicar na mesma vaga, apenas fechar
+            if (currentResultadoVagaId === vagaId) {
+                fecharResultado();
+                return;
+            }
+            
+            btn.textContent = 'BUSCANDO...';
+            btn.disabled = true;
+            
+            // Remover resultado anterior
+            fecharResultado();
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/vagas/${vagaId}/predict/?top_k=5`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Erro ao buscar candidatos');
+                }
+                
+                if (data.candidatos && data.candidatos.length > 0) {
+                    mostrarResultado(vagaId, data, vagaTitulo);
+                    btn.textContent = 'ATUALIZAR CVS';
+                } else {
+                    alert('Nenhum candidato encontrado');
+                    btn.textContent = 'BUSCAR CVS COMPATÍVEIS';
+                }
+                
+                btn.disabled = false;
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                alert(`Erro: ${error.message}`);
+                btn.textContent = 'BUSCAR CVS COMPATÍVEIS';
+                btn.disabled = false;
+            }
+        }
+
+        function mostrarResultado(vagaId, data, vagaTitulo) {
+            const vagasGrid = document.getElementById('vagasGrid');
+            const card = document.getElementById(`card-${vagaId}`);
+            
+            // Marcar card ativo
+            document.querySelectorAll('.vaga-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            
+            // Criar elemento de resultado
+            const resultadoDiv = document.createElement('div');
+            resultadoDiv.className = 'resultado-container';
+            resultadoDiv.id = 'resultado-atual';
+            resultadoDiv.innerHTML = `
+                <div class="resultado-header">
+                    <h3>✓ ${data.total_candidatos} Candidatos para: ${vagaTitulo}</h3>
+                    <button class="fechar-btn" onclick="fecharResultado()">Fechar ✕</button>
+                </div>
+                ${data.candidatos.map(cv => `
+                    <div class="cv-item">
+                        <div class="cv-header">
+                            <span class="cv-id">CV #${cv.cv_id}</span>
+                            <span class="cv-score">${cv.match_percentage}% Match</span>
+                        </div>
+                        <div class="cv-texto">${cv.texto}</div>
+                    </div>
+                `).join('')}
+            `;
+            
+            vagasGrid.appendChild(resultadoDiv);
+            currentResultadoVagaId = vagaId;
+            
+            // Scroll suave até o resultado
+            setTimeout(() => {
+                resultadoDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        function fecharResultado() {
+            const resultadoAtual = document.getElementById('resultado-atual');
+            if (resultadoAtual) {
+                resultadoAtual.remove();
+            }
+            
+            // Remover highlight dos cards
+            document.querySelectorAll('.vaga-card').forEach(c => c.classList.remove('active'));
+            
+            // Resetar botões
+            if (currentResultadoVagaId) {
+                const btn = document.getElementById(`btn-${currentResultadoVagaId}`);
+                if (btn) {
+                    btn.textContent = 'BUSCAR CVS COMPATÍVEIS';
+                    btn.disabled = false;
+                }
+            }
+            
+            currentResultadoVagaId = null;
+        }
+
+        function atualizarPaginacao(data) {
+            const paginationDiv = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                paginationDiv.style.display = 'none';
+                return;
+            }
+            
+            paginationDiv.style.display = 'flex';
+            paginationDiv.innerHTML = `
+                <button onclick="carregarVagas(1)" ${currentPage === 1 ? 'disabled' : ''}>
+                    Primeira
+                </button>
+                <button onclick="carregarVagas(${currentPage - 1})" ${!data.previous ? 'disabled' : ''}>
+                    Anterior
+                </button>
+                <span class="page-info">Página ${currentPage} de ${totalPages}</span>
+                <button onclick="carregarVagas(${currentPage + 1})" ${!data.next ? 'disabled' : ''}>
+                    Próxima
+                </button>
+                <button onclick="carregarVagas(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    Última
+                </button>
+            `;
+        }
+
+        async function inicializar() {
+            await checkSystemStatus();
+            await carregarVagas(1);
+        }
+
+        document.addEventListener('DOMContentLoaded', inicializar);
+    </script>
+</body>
+</html>
