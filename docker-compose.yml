@@ -1,4 +1,15 @@
 services:
+  db:
+    image: postgres:15
+    container_name: tc5_fiap_db
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   web:
     build: .
     container_name: tc5_fiap_web
@@ -10,7 +21,7 @@ services:
     environment:
       - DEBUG=1
 
-      # Serviço MLflow UI
+  # Serviço MLflow UI
   mlflow:
     build: .
     command: mlflow ui --host 0.0.0.0 --port 5000
@@ -20,3 +31,26 @@ services:
       - "5001:5000"
     depends_on:
       - web
+
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: tc5_fiap_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=123456
+    depends_on:
+      - db
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+
+volumes:
+  grafana_data:
+  postgres_data:
+
+#volumes:
+#  - ./grafana/provisioning:/etc/grafana/provisioning
+#  - ./grafana/dashboards:/var/lib/grafana/dashboards
