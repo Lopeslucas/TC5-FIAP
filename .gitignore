@@ -27,6 +27,9 @@ staticfiles/
 
 # Arquivos de ambiente
 .env
+google_cloud_key
+google_cloud_key.pub
+db
 
 # IDE / Editor
 .vscode/
