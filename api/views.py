@@ -9,6 +9,9 @@ from .models import Curriculo, Vaga
 from .serializers import CurriculoSerializer, VagaSerializer
 from sentence_transformers import util
 import numpy as np
+from django.http import JsonResponse
+from ML.metrics import log_prediction, log_training_metrics
+import random
 
 # Pipeline global
 _pipeline = JobMatchingPipeline("bucket-tc5")
@@ -20,6 +23,26 @@ _df_vagas = None
 _model = None
 _metrics = None
 
+def test_metrics(request):
+    """View para testar as métricas do Prometheus"""
+    
+    # Simula algumas predições
+    for _ in range(5):
+        score = random.uniform(0.3, 0.9)
+        log_prediction(score, model_version="test_v1")
+    
+    # Simula métricas de treino
+    log_training_metrics(
+        accuracy=random.uniform(0.7, 0.9),
+        loss=random.uniform(0.1, 0.4),
+        model_version="test_v1"
+    )
+    
+    return JsonResponse({
+        "status": "ok",
+        "message": "Métricas registradas! Acesse http://localhost:8001/metrics",
+        "prometheus_url": "http://localhost:9090"
+    })
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 12

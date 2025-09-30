@@ -28,6 +28,8 @@ from mlflow.models.signature import infer_signature
 import tempfile
 import joblib
 
+from ML.monitoring import log_predictions_to_s3, log_training_summary
+from ML.metrics import start_prometheus_server, log_prediction, log_training_metrics
 
 # Classe responsável por carregar e enviar dados do/para o S3 (armazenamento AWS)
 class S3DataLoader:
@@ -205,6 +207,10 @@ class ModelTrainer:
         # Divide dados mantendo vagas inteiras em treino ou teste
         gss = GroupShuffleSplit(n_splits=1, test_size=test_size, random_state=42)
         train_idx, test_idx = next(gss.split(X, y, groups))
+
+        self.train_idx = train_idx
+        self.test_idx = test_idx
+
         return X[train_idx], X[test_idx], y[train_idx], y[test_idx]
 
     # Cria DataLoaders para processar dados em batches durante o treinamento
@@ -527,6 +533,41 @@ class JobMatchingPipeline:
             print(f"MLflow Run ID: {run.info.run_id}")
             print(f"Accuracy: {acc:.4f}")
             print(f"Average Precision: {avg_prec:.4f}")
+
+            # Imprime resumo dos resultados
+            print(f"Treinamento concluído!")
+            print(f"MLflow Run ID: {run.info.run_id}")
+            print(f"Accuracy: {acc:.4f}")
+            print(f"Average Precision: {avg_prec:.4f}")
+
+            # ====== MONITORAMENTO SIMPLIFICADO ======
+            test_pairs = pairs_df.iloc[trainer.test_idx] if hasattr(trainer, 'test_idx') else pairs_df.tail(len(X_test))
+            
+            # Salva predições no S3
+            log_predictions_to_s3(
+                pairs_df=test_pairs.reset_index(drop=True),
+                y_probs=y_probs,
+                model_version=run.info.run_id,
+                s3_loader=self.s3_loader
+            )
+            
+            # Registra métricas no Prometheus
+            log_training_metrics(
+                accuracy=acc,
+                loss=train_losses[-1] if train_losses else 0.0,
+                model_version=run.info.run_id
+            )
+            
+            # Registra cada predição
+            for score in y_probs:
+                log_prediction(score, model_version=run.info.run_id)
+            
+            # Salva resumo completo no S3
+            log_training_summary(
+                metrics=full_metrics,
+                model_version=run.info.run_id,
+                s3_loader=self.s3_loader
+            )
 
             return model, trainer, full_metrics
 
