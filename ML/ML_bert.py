@@ -20,7 +20,7 @@ import torch.nn as nn
 import torch.optim as optim                                    
 import matplotlib.pyplot as plt
 
-# Importações do MLflow - ferramenta para rastrear experimentos de ML
+# Importações do MLflow
 import mlflow
 import mlflow.pytorch
 import mlflow.sklearn
@@ -28,8 +28,9 @@ from mlflow.models.signature import infer_signature
 import tempfile
 import joblib
 
+# Importações prometheus
 from ML.monitoring import log_predictions_to_s3, log_training_summary
-from ML.metrics import start_prometheus_server, log_prediction, log_training_metrics
+from ML.metrics import log_prediction, log_training_metrics
 
 # Classe responsável por carregar e enviar dados do/para o S3 (armazenamento AWS)
 class S3DataLoader:

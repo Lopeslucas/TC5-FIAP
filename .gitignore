@@ -70,3 +70,6 @@ mlruns/
 
 # Coisas
 notas/
+
+# AWS
+*.pem
