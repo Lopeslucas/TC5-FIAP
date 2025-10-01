@@ -64,6 +64,12 @@ O Job Matching System é uma solução de Machine Learning que utiliza modelos d
 - Swagger/OpenAPI (drf-yasg)
 - ReDoc
 
+## 🏗 Arquitetura
+
+<p align="left">
+  <img src="docs\arc.jpg" alt="Arquitetura" width="600"/>
+</p>
+
 ## 💻 Componentes Principais
 
 ### 1. **EmbeddingProcessor**
