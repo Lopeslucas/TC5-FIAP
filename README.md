@@ -359,6 +359,11 @@ curl http://34.133.21.83:8000/api/ml/health/
 ```
 
 
-## 👥 Autores
+## 👥 Créditos
 
-Desenvolvido para o Tech Challenge 5 - FIAP
+Desenvolvido por:
+- **Raphael Nakamura** - 💻 [GitHub](https://github.com/milinull) | 💼 [LinkedIn](https://www.linkedin.com/in/raphael-nakamura017/)
+
+- **Lucas Lopes** - 💻 [GitHub](https://github.com/Lopeslucas) | 💼 [LinkedIn](https://www.linkedin.com/in/lucas-lopes-633b04123/)
+
+---
