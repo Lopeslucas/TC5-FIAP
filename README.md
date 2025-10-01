@@ -289,9 +289,15 @@ Teste a API e explore as funcionalidades diretamente no navegador!
 
 **🌐 Acesse a aplicação:** http://34.133.21.83:8000/
 
-**📚 Base URL:** `http://34.133.21.83:8000/api/`
+### 🎬 Demonstração
+
+<p align="left">
+  <img src="docs\demo.gif" alt="Demo da Aplicação" width="600"/>
+</p>
 
 ### Endpoints Públicos
+
+**📚 Base URL:** `http://34.133.21.83:8000/api/`
 
 ```
 # Documentação
@@ -330,6 +336,11 @@ curl http://34.133.21.83:8000/api/ml/health/
 │   ├── serializers.py          # DRF Serializers
 │   ├── views.py                # API Views
 │   └── urls.py                 # Rotas
+├── bd/
+│   ├── applicants.sql          # Queries de candidatos
+│   ├── filtred.sql             # Queries de dados limpos
+│   ├── prospects.sql           # Queries de prospectos
+│   └── vagas.sql               # Queries de vagas
 ├── templates/
 │   └── vagas.html              # Frontend
 ├── grafana/
@@ -340,6 +351,7 @@ curl http://34.133.21.83:8000/api/ml/health/
 ├── prometheus.yml              # Config Prometheus
 └── requirements.txt            # Dependências Python
 ```
+
 
 ## 👥 Autores
 
