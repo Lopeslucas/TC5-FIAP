@@ -1,4 +1,4 @@
-# 🎯 Job Matching
+# 🎯 TalentMatch-AI
 
 ![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.8+-ee4c2c.svg)
