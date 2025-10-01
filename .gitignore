@@ -42,8 +42,6 @@ staticfiles/
 docker-compose.override.yml
 
 # PostgreSQL
-/bd
-*.sql
 *.dump
 
 # Sistema
