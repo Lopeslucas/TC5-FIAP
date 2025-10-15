@@ -294,7 +294,7 @@ Credenciais padrão: `admin` / `123456`
 O projeto está hospedado no **Google Cloud Platform**.<br>
 Teste a API e explore as funcionalidades diretamente no navegador!
 
-**🌐 Acesse a aplicação:** http://34.133.21.83:8000/
+**🌐 Acesse a aplicação:** http://34.68.77.162:8000/
 
 ### 🎬 Demonstração
 
@@ -304,30 +304,30 @@ Teste a API e explore as funcionalidades diretamente no navegador!
 
 ### Endpoints Públicos
 
-**📚 Base URL:** `http://34.133.21.83:8000/api/`
+**📚 Base URL:** `http://34.68.77.162:8000/api/`
 
 ```
 # Documentação
-http://34.133.21.83:8000/swagger/
-http://34.133.21.83:8000/redoc/
+http://34.68.77.162:8000/swagger/
+http://34.68.77.162:8000/redoc/
 
 # API
-http://34.133.21.83:8000/api/vagas/
-http://34.133.21.83:8000/api/curriculos/
-http://34.133.21.83:8000/api/ml/health/
+http://34.68.77.162:8000/api/vagas/
+http://34.68.77.162:8000/api/curriculos/
+http://34.68.77.162:8000/api/ml/health/
 ```
 
 ### Exemplo de Uso (Produção)
 
 ```bash
 # Listar vagas
-curl http://34.133.21.83:8000/api/vagas/
+curl http://34.68.77.162:8000/api/vagas/
 
 # Predição para vaga específica
-curl "http://34.133.21.83:8000/api/vagas/1/predict/?top_k=10"
+curl "http://34.68.77.162:8000/api/vagas/1/predict/?top_k=10"
 
 # Status do sistema
-curl http://34.133.21.83:8000/api/ml/health/
+curl http://34.68.77.162:8000/api/ml/health/
 ```
 
 ## 📁 Estrutura do Projeto
