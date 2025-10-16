@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:15
+    image: postgres:17
     container_name: tc5_fiap_db
     restart: always
     ports:
@@ -60,7 +60,7 @@ services:
 
 volumes:
   grafana_data:
-#  postgres_data:
+  postgres_data:
 
 #volumes:
 #  - ./grafana/provisioning:/etc/grafana/provisioning
